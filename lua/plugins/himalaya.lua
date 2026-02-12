@@ -26,17 +26,19 @@ return {
       vim.g.himalaya_folder_picker = "native"
       vim.g.himalaya_always_confirm = 1
 
-      -- Patch s:bufwidth() to subtract 2 columns for UTF-8 safety margin.
-      -- Prevents comfy-table crash when truncating multi-byte chars at exact width.
-      -- Idempotent: only patches if the original unpatched line is found.
+      -- Patch s:bufwidth() for UTF-8 safety margin (comfy-table crash fix).
+      -- Subtracts 4 columns and rounds to even width to prevent multi-byte
+      -- character truncation at exact boundary. Idempotent.
       local email_vim = vim.fn.stdpath("data")
         .. "/lazy/himalaya-vim/autoload/himalaya/domain/email.vim"
       if vim.fn.filereadable(email_vim) == 1 then
         local lines = vim.fn.readfile(email_vim)
         for i, line in ipairs(lines) do
           if line:find("return width - numwidth - foldwidth - signwidth", 1, true)
-            and not line:find("- 2", 1, true) then
-            lines[i] = "  return max([40, width - numwidth - foldwidth - signwidth - 2])"
+            and not line:find("usable", 1, true) then
+            -- Replace single return with 2-line safe version
+            lines[i] = "  let usable = width - numwidth - foldwidth - signwidth - 4\n"
+              .. "  return max([40, (usable / 2) * 2])"
             vim.fn.writefile(lines, email_vim)
             break
           end
