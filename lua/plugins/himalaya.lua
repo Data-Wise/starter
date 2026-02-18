@@ -25,10 +25,13 @@ return {
 
       vim.g.himalaya_folder_picker = "native"
       vim.g.himalaya_always_confirm = 1
+    end,
 
-      -- Patch s:bufwidth() for UTF-8 safety margin (comfy-table crash fix).
-      -- Subtracts 4 columns and rounds to even width to prevent multi-byte
-      -- character truncation at exact boundary. Idempotent.
+    -- Patch s:bufwidth() for UTF-8 safety margin (comfy-table crash fix).
+    -- Runs after install/update so Lazy won't flag local changes.
+    -- Subtracts 4 columns and rounds to even width to prevent multi-byte
+    -- character truncation at exact boundary. Idempotent.
+    build = function()
       local email_vim = vim.fn.stdpath("data")
         .. "/lazy/himalaya-vim/autoload/himalaya/domain/email.vim"
       if vim.fn.filereadable(email_vim) == 1 then
@@ -36,9 +39,8 @@ return {
         for i, line in ipairs(lines) do
           if line:find("return width - numwidth - foldwidth - signwidth", 1, true)
             and not line:find("usable", 1, true) then
-            -- Replace single return with 2-line safe version
-            lines[i] = "  let usable = width - numwidth - foldwidth - signwidth - 4\n"
-              .. "  return max([40, (usable / 2) * 2])"
+            lines[i] = "  let usable = width - numwidth - foldwidth - signwidth - 4"
+            table.insert(lines, i + 1, "  return max([40, (usable / 2) * 2])")
             vim.fn.writefile(lines, email_vim)
             break
           end
@@ -53,7 +55,7 @@ return {
 
     keys = {
       {
-        "<leader>eM",
+        "<leader>em",
         function()
           local ok, err = pcall(vim.cmd, "Himalaya")
           if not ok then
@@ -62,8 +64,26 @@ return {
             vim.notify(msg .. "\n\n(copied to clipboard)", vim.log.levels.ERROR)
           end
         end,
-        desc = "Open Himalaya (Email)",
+        desc = "Email (Himalaya)",
       },
     },
+  },
+  {
+    "nvim-lualine/lualine.nvim",
+    opts = function(_, opts)
+      table.insert(opts.sections.lualine_x, 1, {
+        function()
+          local ok, hai = pcall(require, "himalaya-ai")
+          if ok then return hai.config.backend end
+          return ""
+        end,
+        cond = function()
+          local ok, hai = pcall(require, "himalaya-ai")
+          return ok and hai.config.backend ~= nil
+        end,
+        icon = "󰇮",
+        color = { fg = "#7aa2f7" },
+      })
+    end,
   },
 }

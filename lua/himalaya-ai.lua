@@ -704,8 +704,8 @@ local function open_result(title, lines, ctx)
     end
 
     local function send_reminders(content)
-      local clean_title = title:gsub("'", "'\\''")
-      local clean_body = content:gsub("'", "'\\''")
+      local clean_title = title:gsub('"', '\\"'):gsub("'", "'\\''")
+      local clean_body = content:gsub('"', '\\"'):gsub("'", "'\\''")
       vim.fn.jobstart({
         "osascript", "-e",
         'tell application "Reminders" to make new reminder with properties '
@@ -784,7 +784,15 @@ local function run_ai(prompt_key, title, instructions)
   local stdout = {}
   local stderr = {}
 
-  local job = vim.fn.jobstart({ backend.cmd, backend.flag, prompt_text }, {
+  local cmd = { backend.cmd }
+  if backend.extra_args then
+    for _, arg in ipairs(backend.extra_args) do
+      cmd[#cmd + 1] = arg
+    end
+  end
+  cmd[#cmd + 1] = backend.flag
+  cmd[#cmd + 1] = prompt_text
+  local job = vim.fn.jobstart(cmd, {
     stdout_buffered = true,
     stderr_buffered = true,
     on_stdout = function(_, data)
@@ -844,7 +852,15 @@ function M._run_ai_custom(prompt_text, email, title, meta)
   local stdout = {}
   local stderr = {}
 
-  local job = vim.fn.jobstart({ backend.cmd, backend.flag, prompt_text }, {
+  local cmd = { backend.cmd }
+  if backend.extra_args then
+    for _, arg in ipairs(backend.extra_args) do
+      cmd[#cmd + 1] = arg
+    end
+  end
+  cmd[#cmd + 1] = backend.flag
+  cmd[#cmd + 1] = prompt_text
+  local job = vim.fn.jobstart(cmd, {
     stdout_buffered = true,
     stderr_buffered = true,
     on_stdout = function(_, data)

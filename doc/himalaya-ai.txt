@@ -1,0 +1,201 @@
+*himalaya-ai.txt*  AI-powered email actions for himalaya-vim
+
+Author:  DT
+License: MIT
+
+==============================================================================
+CONTENTS                                                *himalaya-ai-contents*
+
+    1. Introduction .......................... |himalaya-ai-introduction|
+    2. Commands .............................. |himalaya-ai-commands|
+    3. Global Keybinds ....................... |himalaya-ai-keybinds|
+    4. Result Buffer Keybinds ................ |himalaya-ai-result-keybinds|
+    5. Configuration ......................... |himalaya-ai-configuration|
+    6. Backends .............................. |himalaya-ai-backends|
+    7. Lualine ............................... |himalaya-ai-lualine|
+    8. Dashboard ............................. |himalaya-ai-dashboard|
+
+==============================================================================
+1. INTRODUCTION                                     *himalaya-ai-introduction*
+
+himalaya-ai is a Neovim module that provides AI-powered email actions for
+himalaya-vim. It pipes email buffer content through Claude or Gemini CLI and
+displays results in a split or tab.
+
+==============================================================================
+2. COMMANDS                                             *himalaya-ai-commands*
+
+                                                              *:HimalayaAi*
+:HimalayaAi {subcommand}
+    Main entry point for all himalaya-ai commands.
+
+                                                       *:HimalayaAi-status*
+:HimalayaAi status
+    Show backend, vault, prompts, and config status.
+
+                                                      *:HimalayaAi-prompts*
+:HimalayaAi prompts
+    Interactive prompt browser. Within the browser:
+        `e`   Edit selected prompt
+        `v`   Validate selected prompt
+
+                                                         *:HimalayaAi-edit*
+:HimalayaAi edit
+    Open config.lua in a vertical split with auto-reload on save.
+
+                                                     *:HimalayaAi-validate*
+:HimalayaAi validate [name]
+    Test a prompt against a sample or current buffer email.
+
+                                                          *:HimalayaAi-set*
+:HimalayaAi set {key} {value}
+    Set a config value. The change is persisted to config.lua.
+
+    Valid keys:~
+        `backend`          Backend name (e.g., "claude", "gemini")
+        `vault`            Path to Obsidian vault
+        `save_dir`         Default directory for saving results
+        `format`           "structured" or "simple"
+        `result_display`   "split" or "tab"
+        `todo_target`      "obsidian", "reminders", or "ask"
+
+==============================================================================
+3. GLOBAL KEYBINDS                                      *himalaya-ai-keybinds*
+
+All keybinds are mapped in normal mode.
+
+    Key              Action~
+    -----------------------------------------------------------------------
+    `<leader>em`       Open Himalaya (buffer mode)
+    `<leader>ms`       AI: Summarize email
+    `<leader>mt`       AI: Extract action items
+    `<leader>mr`       AI: Draft reply
+    `<leader>mc`       AI: TL;DR + decision
+    `<leader>mw`       AI: Compose email
+    `<leader>mp`       AI: Prompt picker (select from all actions)
+    `<leader>mi`       AI: Status info
+    `<leader>mB`       AI: Toggle backend (cycles claude -> gemini -> ...)
+
+==============================================================================
+4. RESULT BUFFER KEYBINDS                        *himalaya-ai-result-keybinds*
+
+These keybinds are active inside an AI result buffer.
+
+    Key              Action~
+    -----------------------------------------------------------------------
+    `y`                Copy result to clipboard
+    `s`                Save result to file (prompts for path)
+    `f`                Toggle fullscreen
+    `q` / `<Esc>`      Close result
+    `p`                Paste into himalaya reply buffer
+    `o`                Send to Obsidian vault
+    `r`                Re-run with edited prompt
+    `a`                Append to existing file
+    `e`                Toggle editable mode (edits apply to y/s/a/o/p)
+    `c`                Revise with instruction (AI re-processes)
+    `n`                Next action (chain another AI action)
+    `t`                Send to todo (Obsidian daily note or macOS Reminders)
+
+==============================================================================
+5. CONFIGURATION                                  *himalaya-ai-configuration*
+
+External config file: `~/.config/himalaya-ai/config.lua`
+
+The file returns a Lua table that is merged with built-in defaults. Example:
+>lua
+    return {
+      backend = "claude",
+      backends = {
+        claude = {
+          cmd = "/path/to/claude",
+          flag = "-p",
+        },
+        gemini = {
+          cmd = "/path/to/gemini",
+          flag = "-p",
+          extra_args = { "-e", "none" },
+        },
+      },
+      obsidian = {
+        vault = "~/path/to/vault",
+        subfolder = "Inbox",
+        format = "structured",  -- or "simple"
+      },
+      save_dir = "~",
+      result_display = "split",  -- or "tab"
+      todo_target = "ask",       -- "obsidian" | "reminders" | "ask"
+      ask_before = {
+        draft_reply = true,
+        compose = true,
+        summarize = false,
+        extract_todos = false,
+        tldr = false,
+      },
+      prompts = {  -- override built-in prompts
+        summarize = "Your custom prompt...",
+      },
+    }
+<
+
+                                                  *himalaya-ai-config-keys*
+Config keys:~
+
+    Key                Type       Default      Description~
+    -----------------------------------------------------------------------
+    `backend`            string     "claude"     Active AI backend
+    `backends`           table      (see below)  Backend definitions
+    `obsidian.vault`     string     (none)       Path to Obsidian vault
+    `obsidian.subfolder` string     "Inbox"      Vault subfolder for saves
+    `obsidian.format`    string     "structured" "structured" or "simple"
+    `save_dir`           string     "~"          Default save directory
+    `result_display`     string     "split"      "split" or "tab"
+    `todo_target`        string     "ask"        "obsidian", "reminders", "ask"
+    `ask_before`         table      (see above)  Confirm before running action
+    `prompts`            table      {}           Override built-in prompts
+
+==============================================================================
+6. BACKENDS                                             *himalaya-ai-backends*
+
+Each backend entry defines how to invoke an AI CLI tool.
+
+    Field          Type             Description~
+    -----------------------------------------------------------------------
+    `cmd`            string           Path to CLI binary
+    `flag`           string           Prompt flag (e.g., "-p")
+    `extra_args`     table (optional) Additional CLI args inserted between
+                                    cmd and flag
+
+Example backend definition:
+>lua
+    gemini = {
+      cmd = "/usr/local/bin/gemini",
+      flag = "-p",
+      extra_args = { "-e", "none" },
+    }
+<
+
+The resulting CLI invocation would be: >
+    /usr/local/bin/gemini -e none -p "prompt text"
+<
+
+Use |:HimalayaAi-set| to change the active backend: >
+    :HimalayaAi set backend gemini
+<
+
+Or cycle through backends with `<leader>mB`.
+
+==============================================================================
+7. LUALINE                                              *himalaya-ai-lualine*
+
+himalaya-ai provides a lualine component that shows the active backend name
+with a 󰇮 icon in `lualine_x`. The component uses a `pcall` guard so it will
+not error if the module has not yet loaded.
+
+==============================================================================
+8. DASHBOARD                                          *himalaya-ai-dashboard*
+
+An alpha-nvim integration is included. The `e` button on the dashboard opens
+the |:Himalaya| buffer mode.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
