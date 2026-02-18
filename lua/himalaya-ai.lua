@@ -704,8 +704,8 @@ local function open_result(title, lines, ctx)
     end
 
     local function send_reminders(content)
-      local clean_title = title:gsub("'", "'\\''")
-      local clean_body = content:gsub("'", "'\\''")
+      local clean_title = title:gsub('"', '\\"'):gsub("'", "'\\''")
+      local clean_body = content:gsub('"', '\\"'):gsub("'", "'\\''")
       vim.fn.jobstart({
         "osascript", "-e",
         'tell application "Reminders" to make new reminder with properties '

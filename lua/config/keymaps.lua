@@ -26,7 +26,7 @@ vim.keymap.set("n", "<leader>mp", function()
     end
   )
 end, { desc = "AI: Prompt picker" })
-vim.keymap.set("n", "<leader>mi", function() vim.cmd("HimalayaAi status") end, { desc = "AI: Status info" })
+vim.keymap.set("n", "<leader>mi", function() require("himalaya-ai"); vim.cmd("HimalayaAi status") end, { desc = "AI: Status info" })
 vim.keymap.set("n", "<leader>mB", function()
   local hai = require("himalaya-ai")
   local backends = vim.tbl_keys(hai.config.backends)
