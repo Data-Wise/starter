@@ -37,8 +37,8 @@ return {
           if line:find("return width - numwidth - foldwidth - signwidth", 1, true)
             and not line:find("usable", 1, true) then
             -- Replace single return with 2-line safe version
-            lines[i] = "  let usable = width - numwidth - foldwidth - signwidth - 4\n"
-              .. "  return max([40, (usable / 2) * 2])"
+            lines[i] = "  let usable = width - numwidth - foldwidth - signwidth - 4"
+            table.insert(lines, i + 1, "  return max([40, (usable / 2) * 2])")
             vim.fn.writefile(lines, email_vim)
             break
           end
