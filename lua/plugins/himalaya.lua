@@ -67,6 +67,32 @@ return {
     },
   },
   {
+    "folke/snacks.nvim",
+    opts = {
+      styles = {
+        himalaya = {
+          width = 0.85,
+          height = 0.85,
+          border = "rounded",
+          title = " Email ",
+          title_pos = "center",
+        },
+      },
+    },
+    keys = {
+      {
+        "<leader>em",
+        function()
+          Snacks.terminal.toggle("himalaya", {
+            cwd = vim.fn.expand("~"),
+            win = { style = "himalaya" },
+          })
+        end,
+        desc = "Email (floating)",
+      },
+    },
+  },
+  {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
       table.insert(opts.sections.lualine_x, 1, {

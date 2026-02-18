@@ -142,10 +142,11 @@ for binding in '<leader>ms' '<leader>mt' '<leader>mr' '<leader>mc' '<leader>mw' 
   fi
 done
 
-if grep -qF '<leader>em' "$DASHBOARD"; then
-  pass "<leader>em defined in dashboard.lua"
+HIMALAYA_PLUGIN="$PROJECT_ROOT/lua/plugins/himalaya.lua"
+if grep -qF '<leader>em' "$HIMALAYA_PLUGIN"; then
+  pass "<leader>em defined in himalaya.lua"
 else
-  fail "<leader>em defined in dashboard.lua" "Not found"
+  fail "<leader>em defined in himalaya.lua" "Not found"
 fi
 
 if grep -qF '<leader>eM' "$PROJECT_ROOT/lua/plugins/himalaya.lua"; then
@@ -186,35 +187,34 @@ fi
 # ── 7. Dashboard + Snacks ──
 section "Dashboard + Snacks Floating Terminal"
 
-if grep -q 'folke/snacks.nvim' "$DASHBOARD"; then
-  pass "Snacks plugin spec present"
+if grep -q 'folke/snacks.nvim' "$HIMALAYA_PLUGIN"; then
+  pass "Snacks plugin spec in himalaya.lua"
 else
-  fail "Snacks plugin spec present" "Not found"
+  fail "Snacks plugin spec in himalaya.lua" "Not found"
 fi
 
-if grep -q 'Snacks.terminal.toggle' "$DASHBOARD"; then
-  pass "Snacks.terminal.toggle used"
+if grep -q 'Snacks.terminal.toggle' "$HIMALAYA_PLUGIN"; then
+  pass "Snacks.terminal.toggle used in himalaya.lua"
 else
-  fail "Snacks.terminal.toggle used" "Not found"
+  fail "Snacks.terminal.toggle used in himalaya.lua" "Not found"
 fi
 
-snacks_toggle_count=$(grep -c 'Snacks.terminal.toggle' "$DASHBOARD" || true)
-if [[ $snacks_toggle_count -eq 2 ]]; then
-  pass "Both dashboard button and keybind use Snacks.terminal.toggle"
-else
-  fail "Both entry points use Snacks.terminal.toggle" "Expected 2, found $snacks_toggle_count"
-fi
-
-if grep -q 'style = "himalaya"' "$DASHBOARD"; then
+if grep -q 'style = "himalaya"' "$HIMALAYA_PLUGIN"; then
   pass "Custom himalaya Snacks style defined"
 else
   fail "Custom himalaya Snacks style defined" "Not found"
 fi
 
-if grep -q 'width = 0.85' "$DASHBOARD" && grep -q 'height = 0.85' "$DASHBOARD"; then
+if grep -q 'width = 0.85' "$HIMALAYA_PLUGIN" && grep -q 'height = 0.85' "$HIMALAYA_PLUGIN"; then
   pass "Floating window size is 85%"
 else
   fail "Floating window size is 85%" "Expected width/height 0.85"
+fi
+
+if grep -qF '<leader>em' "$DASHBOARD"; then
+  pass "Dashboard button triggers <leader>em"
+else
+  fail "Dashboard button triggers <leader>em" "Not found"
 fi
 
 # ── 8. Neovim Headless Load Test ──
