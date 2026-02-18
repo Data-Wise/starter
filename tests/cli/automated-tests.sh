@@ -149,12 +149,6 @@ else
   fail "<leader>em defined in himalaya.lua" "Not found"
 fi
 
-if grep -qF '<leader>eM' "$PROJECT_ROOT/lua/plugins/himalaya.lua"; then
-  pass "<leader>eM defined in himalaya.lua"
-else
-  fail "<leader>eM defined in himalaya.lua" "Not found"
-fi
-
 # ── 6. Plugin Spec Structure ──
 section "Plugin Spec Structure"
 
@@ -184,37 +178,19 @@ else
   fail "Lualine uses defensive pcall" "Missing pcall guard"
 fi
 
-# ── 7. Dashboard + Snacks ──
-section "Dashboard + Snacks Floating Terminal"
+# ── 7. Dashboard Email Button ──
+section "Dashboard Email Button"
 
-if grep -q 'folke/snacks.nvim' "$HIMALAYA_PLUGIN"; then
-  pass "Snacks plugin spec in himalaya.lua"
+if grep -q '<cmd>Himalaya<CR>' "$DASHBOARD"; then
+  pass "Dashboard button runs :Himalaya command"
 else
-  fail "Snacks plugin spec in himalaya.lua" "Not found"
+  fail "Dashboard button runs :Himalaya command" "Not found"
 fi
 
-if grep -q 'Snacks.terminal.toggle' "$HIMALAYA_PLUGIN"; then
-  pass "Snacks.terminal.toggle used in himalaya.lua"
+if grep -q 'alpha.themes.dashboard' "$DASHBOARD"; then
+  pass "Dashboard uses alpha button API"
 else
-  fail "Snacks.terminal.toggle used in himalaya.lua" "Not found"
-fi
-
-if grep -q 'style = "himalaya"' "$HIMALAYA_PLUGIN"; then
-  pass "Custom himalaya Snacks style defined"
-else
-  fail "Custom himalaya Snacks style defined" "Not found"
-fi
-
-if grep -q 'width = 0.85' "$HIMALAYA_PLUGIN" && grep -q 'height = 0.85' "$HIMALAYA_PLUGIN"; then
-  pass "Floating window size is 85%"
-else
-  fail "Floating window size is 85%" "Expected width/height 0.85"
-fi
-
-if grep -qF '<leader>em' "$DASHBOARD"; then
-  pass "Dashboard button triggers <leader>em"
-else
-  fail "Dashboard button triggers <leader>em" "Not found"
+  fail "Dashboard uses alpha button API" "Not found"
 fi
 
 # ── 8. Neovim Headless Load Test ──

@@ -53,7 +53,7 @@ return {
 
     keys = {
       {
-        "<leader>eM",
+        "<leader>em",
         function()
           local ok, err = pcall(vim.cmd, "Himalaya")
           if not ok then
@@ -62,33 +62,7 @@ return {
             vim.notify(msg .. "\n\n(copied to clipboard)", vim.log.levels.ERROR)
           end
         end,
-        desc = "Open Himalaya (Email)",
-      },
-    },
-  },
-  {
-    "folke/snacks.nvim",
-    opts = {
-      styles = {
-        himalaya = {
-          width = 0.85,
-          height = 0.85,
-          border = "rounded",
-          title = " Email ",
-          title_pos = "center",
-        },
-      },
-    },
-    keys = {
-      {
-        "<leader>em",
-        function()
-          Snacks.terminal.toggle("himalaya", {
-            cwd = vim.fn.expand("~"),
-            win = { style = "himalaya" },
-          })
-        end,
-        desc = "Email (floating)",
+        desc = "Email (Himalaya)",
       },
     },
   },
