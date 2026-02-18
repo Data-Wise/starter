@@ -27,3 +27,16 @@ vim.keymap.set("n", "<leader>mp", function()
   )
 end, { desc = "AI: Prompt picker" })
 vim.keymap.set("n", "<leader>mi", function() vim.cmd("HimalayaAi status") end, { desc = "AI: Status info" })
+vim.keymap.set("n", "<leader>mB", function()
+  local hai = require("himalaya-ai")
+  local backends = vim.tbl_keys(hai.config.backends)
+  table.sort(backends)
+  local current = hai.config.backend
+  local idx = 1
+  for i, b in ipairs(backends) do
+    if b == current then idx = i; break end
+  end
+  local next_backend = backends[(idx % #backends) + 1]
+  hai.config.backend = next_backend
+  vim.notify("AI backend → " .. next_backend, vim.log.levels.INFO)
+end, { desc = "AI: Toggle backend" })

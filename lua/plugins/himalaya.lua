@@ -66,4 +66,22 @@ return {
       },
     },
   },
+  {
+    "nvim-lualine/lualine.nvim",
+    opts = function(_, opts)
+      table.insert(opts.sections.lualine_x, 1, {
+        function()
+          local ok, hai = pcall(require, "himalaya-ai")
+          if ok then return hai.config.backend end
+          return ""
+        end,
+        cond = function()
+          local ok, hai = pcall(require, "himalaya-ai")
+          return ok and hai.config.backend ~= nil
+        end,
+        icon = "󰇮",
+        color = { fg = "#7aa2f7" },
+      })
+    end,
+  },
 }
